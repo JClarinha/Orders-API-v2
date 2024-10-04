@@ -7,55 +7,56 @@ using System.Data.SqlClient;
 
 namespace OrdersAPI.Repositories.Implementations
 {
-    public class ProductRepository :IProductRepository
+    public class ProductRepository : IProductRepository
     {
         private readonly DbSet<Product> _dbSet;
-        private readonly OrdersApiDBContext _ProductApiDBContext;
+        private readonly OrdersApiDBContext _ordersApiDBContext;
 
-        public ProductRepository(OrdersApiDBContext ProductApiDBContext)
+        public ProductRepository(OrdersApiDBContext ordersApiDBContext)
         {
-            _dbSet = ProductApiDBContext.Set<Product>();
-            _ProductApiDBContext = ProductApiDBContext;
-
-
+            _dbSet = ordersApiDBContext.Set<Product>();
+            _ordersApiDBContext = ordersApiDBContext;
         }
-
 
         public List<Product> GetAll()
         {
-            return _dbSet.ToList(); // SELECT * FROM Product;
+            return _dbSet.Include(p => p.Category).ToList();
         }
 
         public Product GetById(int id)
         {
-            return _dbSet.FirstOrDefault(p => p.Id == id); // SELECT * FROM Product WHERE Id = ao imput 
-
+            return _dbSet.FirstOrDefault(product => product.Id == id);
         }
 
-
-        public Product Add(Product Product)
+        public bool GetAny(int id)
         {
-            _dbSet.Add(Product); // INSERT INTO Product (Collums) Values (Values)
-            _ProductApiDBContext.SaveChanges();
-            return Product;
-
+            return _dbSet.Any(product => product.Id == id);
         }
 
-
-        public Product Update(Product Product)
+        public Product Add(Product product)
         {
-            _dbSet.Update(Product); // UPDATE Product SET Collum = VALUE, ... , WHERE Id=Id
-            _ProductApiDBContext.SaveChanges();
-            return Product;
+            _dbSet.Add(product);
 
+            _ordersApiDBContext.SaveChanges();
+
+            return product;
         }
 
-        public void Remove(Product Product)
+        public Product Update(Product product)
         {
-            _dbSet.Remove(Product); // DELET FROM Product WHEERE Id = Product.Id
-            _ProductApiDBContext.SaveChanges();
+            _dbSet.Update(product);
 
+            _ordersApiDBContext.SaveChanges();
 
+            return product;
         }
+
+        public void Remove(Product product)
+        {
+            _dbSet.Remove(product);
+
+            _ordersApiDBContext.SaveChanges();
+        }
+
     }
 }

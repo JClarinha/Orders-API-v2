@@ -5,28 +5,35 @@ using OrdersAPI.Services.Interfaces;
 namespace OrdersAPI.Controllers
 {
     [Route("OrdersAPI/[Controller]")]
-    [ApiController]    
+    [ApiController]
     public class CategoryController : ControllerBase
     {
         private ICategoryService _categoryService;
+
         public CategoryController(ICategoryService categoryService)
         {
-            _categoryService = categoryService;            
-        }          
+            _categoryService = categoryService;
+        }
 
         [HttpGet]
-        public List<Category> GetCategories()
+        public List<Category> GetAllCategories()
         {
             return _categoryService.GetAll();
         }
 
-        [HttpPost]   
-        public Category SaveCategory(Category category) 
+        [HttpGet("{id}")]
+        public Category GetById(int id)
         {
-            return _categoryService.SaveCategory(category);   
+            return _categoryService.GetById(id);
         }
 
-        [HttpDelete]
+        [HttpPost]
+        public Category SaveCategory(Category category)
+        {
+            return _categoryService.SaveCategory(category);
+        }
+
+        [HttpDelete("{id}")]
         public void DeleteCategory(int id)
         {
             _categoryService.RemoveCategory(id);

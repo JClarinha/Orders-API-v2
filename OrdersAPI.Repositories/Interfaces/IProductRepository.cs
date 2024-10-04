@@ -6,8 +6,10 @@ namespace OrdersAPI.Repositories.Interfaces
     {
         List<Product> GetAll();
         Product GetById(int id);
-        Product Add(Product Product);
-        Product Update(Product Product);
-        void Remove(Product Product);
+        bool GetAny(int id);
+        Product Add(Product product);
+        Product Update(Product product);
+        void Remove(Product product);
     }
 }
+

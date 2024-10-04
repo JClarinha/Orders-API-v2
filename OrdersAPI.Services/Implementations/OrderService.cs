@@ -2,60 +2,86 @@
 using OrdersAPI.Domain;
 using OrdersAPI.Repositories.Interfaces;
 using OrdersAPI.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrdersAPI.Services.Implementations
 {
     public class OrderService : IOrderService
-
     {
-
         private OrdersApiDBContext _ordersApiDBContext;
-        private IOrderRepository _orderRepopsitory;
-        public OrderService(OrdersApiDBContext orderApiDbContext, IOrderRepository OrderRepopsitory)
+        private IOrderRepository _orderRepository;
+
+        public OrderService(OrdersApiDBContext ordersApiDBContext, IOrderRepository orderRepository)
         {
-            _ordersApiDBContext = orderApiDbContext;
-            _orderRepopsitory = OrderRepopsitory;
+            _ordersApiDBContext = ordersApiDBContext;
+            _orderRepository = orderRepository;
         }
 
         public List<Order> GetAll()
         {
-            return _orderRepopsitory.GetAll();
+            return _orderRepository.GetAll();
         }
 
-
-        public Order SaveOrder(Order Order)
+        public Order GetById(int id)
         {
-            Order OrderResult = _orderRepopsitory.GetById(Order.Id);
+            return _orderRepository.GetById(id);
+        }
 
-            if (OrderResult == null)
+        public Order SaveOrder(Order order)
+        {
+            
+            bool orderExists = _orderRepository.GetAny(order.Id);
+
+            if (!orderExists)
             {
-                _orderRepopsitory.Add(Order);
-            }
+                // FT-2024/1
+                var orderNumLast = _orderRepository.GetLast().OrderNum;
+                var orderDateLast = _orderRepository.GetLast().OrderDate;
 
+                if (orderDateLast.Year != DateTime.Now.Year)
+                {
+                    order.OrderNum = "FT-" + DateTime.Now.Year + "/1";
+                }
+                else
+                {
+                    var lastNum = Convert.ToInt32(orderNumLast.Substring(orderNumLast.IndexOf('/') + 1));
+
+                    lastNum++;
+
+                    order.OrderNum = "FT-" + DateTime.Now.Year + "/" + lastNum;
+                }
+
+                order.OrderDate = DateTime.Now;
+               
+
+                order = _orderRepository.Add(order);
+            }
             else
             {
-                Order = _orderRepopsitory.Update(Order);
+                order = _orderRepository.Update(order);
             }
 
-            return Order;
+            _ordersApiDBContext.SaveChanges();
+            
+
+            return order;
         }
 
         public void RemoveOrder(int id)
         {
-            Order OrderResult = _orderRepopsitory.GetById(id);
+            Order orderResult = _orderRepository.GetById(id);
 
-            if (OrderResult != null)
+            if (orderResult != null)
             {
-                _orderRepopsitory.Remove(OrderResult);
+                _orderRepository.Remove(orderResult);
 
                 _ordersApiDBContext.SaveChanges();
             }
-
         }
     }
+
+
+
+
+
+
 }

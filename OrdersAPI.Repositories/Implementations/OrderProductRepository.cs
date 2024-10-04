@@ -16,48 +16,53 @@ namespace OrdersAPI.Repositories.Implementations
         {
             _dbSet = ordersApiDBContext.Set<OrderProduct>();
             _ordersApiDBContext = ordersApiDBContext;
-
-
         }
-
 
         public List<OrderProduct> GetAll()
         {
-            return _dbSet.ToList(); // SELECT * FROM OrderProduct;
+            return _dbSet.ToList();
+        }
+
+        public List<OrderProduct> GetAllByOrderId(int orderId)
+        {
+            return _dbSet.Where(p => p.OrderId == orderId).Include(p => p.Product).ToList();
         }
 
         public OrderProduct GetById(int id)
         {
-            return _dbSet.FirstOrDefault(p => p.Id == id); // SELECT * FROM OrderProduct WHERE Id = ao imput 
-
+            return _dbSet
+                .Where(p => p.Id == id)
+                .Include(p => p.Order)
+                .ThenInclude(p => p.Customer)
+                .Include(p => p.Product)
+                .ThenInclude(p => p.Category)
+                .FirstOrDefault();
         }
 
-
-
-
-        public OrderProduct Add(OrderProduct OrderProduct)
+        public OrderProduct Add(OrderProduct orderProduct)
         {
-            _dbSet.Add(OrderProduct); // INSERT INTO OrderProduct (Collums) Values (Values)
-            _ordersApiDBContext.SaveChanges();
-            return OrderProduct;
+            _dbSet.Add(orderProduct);
 
-        }
-
-
-        public OrderProduct Update(OrderProduct OrderProduct)
-        {
-            _dbSet.Update(OrderProduct); // UPDATE OrderProduct SET Collum = VALUE, ... , WHERE Id=Id
-            _ordersApiDBContext.SaveChanges();
-            return OrderProduct;
-
-        }
-
-        public void Remove(OrderProduct OrderProduct)
-        {
-            _dbSet.Remove(OrderProduct); // DELET FROM OrderProduct WHEERE Id = OrderProduct.Id
             _ordersApiDBContext.SaveChanges();
 
-
+            return orderProduct;
         }
+
+        public OrderProduct Update(OrderProduct orderProduct)
+        {
+            _dbSet.Update(orderProduct);
+
+            _ordersApiDBContext.SaveChanges();
+
+            return orderProduct;
+        }
+
+        public void Remove(OrderProduct order)
+        {
+            _dbSet.Remove(order);
+
+            _ordersApiDBContext.SaveChanges();
+        }
+
     }
 }

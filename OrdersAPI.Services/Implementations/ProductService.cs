@@ -2,21 +2,15 @@
 using OrdersAPI.Domain;
 using OrdersAPI.Repositories.Interfaces;
 using OrdersAPI.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrdersAPI.Services.Implemntations
 {
     public class ProductService : IProductService
     {
-        private OrdersApiDBContext _ordersApiDBContext;  
+        private OrdersApiDBContext _ordersApiDBContext;
         private IProductRepository _productRepository;
 
-
-        public ProductService (OrdersApiDBContext ordersApiDBContext, IProductRepository productRepository)
+        public ProductService(OrdersApiDBContext ordersApiDBContext, IProductRepository productRepository)
         {
             _ordersApiDBContext = ordersApiDBContext;
             _productRepository = productRepository;
@@ -27,32 +21,39 @@ namespace OrdersAPI.Services.Implemntations
             return _productRepository.GetAll();
         }
 
-        public Product SaveProduct(Product product) 
+        public Product GetById(int id)
         {
-            Product productResult = _productRepository.GetById(product.Id);
-            if (productResult == null) 
-            { 
-                _productRepository.Add(product);
+            return _productRepository.GetById(id);
+        }
+
+        public Product SaveProduct(Product product)
+        {
+            bool productResult = _productRepository.GetAny(product.Id);
+
+            if (!productResult)
+            {
+                product = _productRepository.Add(product);
             }
             else
             {
                 product = _productRepository.Update(product);
             }
 
-            return product;
+            _ordersApiDBContext.SaveChanges();
 
+            return product;
         }
 
         public void RemoveProduct(int id)
         {
             Product productResult = _productRepository.GetById(id);
 
-            if (productResult != null) 
+            if (productResult != null)
             {
                 _productRepository.Remove(productResult);
+
                 _ordersApiDBContext.SaveChanges();
             }
         }
-
     }
 }

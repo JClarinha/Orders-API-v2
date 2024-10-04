@@ -10,6 +10,7 @@ namespace OrdersAPI.Services.Interfaces
     public interface ICustomerService
     {
         List<Customer> GetAll();
+        Customer GetById(int id);
         Customer SaveCustomer(Customer customer);
         void RemoveCustomer(int id);
     }

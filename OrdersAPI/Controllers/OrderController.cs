@@ -7,29 +7,40 @@ namespace OrdersAPI.Controllers
 
     [Route("OrdersAPI/[Controller]")]
     [ApiController]
-    public class OrderController : Controller
+    public class OrderController : ControllerBase
     {
-        private IOrderService _OrderService;
-        public OrderController(IOrderService OrderService)
+        private IOrderService _orderService;
+
+        public OrderController(IOrderService orderService)
         {
-            _OrderService = OrderService;
+            _orderService = orderService;
         }
+
         [HttpGet]
-        public List<Order> GetOrders()
+        public List<Order> GetAllOrders()
         {
-            return _OrderService.GetAll();
+            return _orderService.GetAll();
+        }
+
+
+        [HttpGet("{id}")]
+        public Order GetById(int id)
+        {
+            return _orderService.GetById(id);
         }
 
         [HttpPost]
-        public Order SaveOrder(Order Order)
+        public Order SaveOrder(Order order)
         {
-            return _OrderService.SaveOrder(Order);
+            return _orderService.SaveOrder(order);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public void DeleteOrder(int id)
         {
-            _OrderService.RemoveOrder(id);
+            _orderService.RemoveOrder(id);
         }
     }
+
+
 }

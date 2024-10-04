@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace OrdersAPI.Repositories.Implementations
 {
-    public class OrderRepository :IOrderRepository
+    public class OrderRepository : IOrderRepository
     {
         private readonly DbSet<Order> _dbSet;
         private readonly OrdersApiDBContext _ordersApiDBContext;
@@ -16,46 +16,57 @@ namespace OrdersAPI.Repositories.Implementations
         {
             _dbSet = ordersApiDBContext.Set<Order>();
             _ordersApiDBContext = ordersApiDBContext;
-
-
         }
-
 
         public List<Order> GetAll()
         {
-            return _dbSet.ToList(); // SELECT * FROM Order;
+            return _dbSet.Include(p => p.Customer).ToList(); ;
         }
 
         public Order GetById(int id)
         {
-            return _dbSet.FirstOrDefault(p => p.Id == id); // SELECT * FROM Order WHERE Id = ao imput 
-
+            return _dbSet.FirstOrDefault(order => order.Id == id);
         }
 
-
-        public Order Add(Order Order)
+        public bool GetAny(int id)
         {
-            _dbSet.Add(Order); // INSERT INTO Order (Collums) Values (Values)
-            _ordersApiDBContext.SaveChanges();
-            return Order;
-
+            return _dbSet.Any(order => order.Id == id);
         }
 
-
-        public Order Update(Order Order)
+        public Order GetLast()
         {
-            _dbSet.Update(Order); // UPDATE Order SET Collum = VALUE, ... , WHERE Id=Id
-            _ordersApiDBContext.SaveChanges();
-            return Order;
-
+            return _dbSet.OrderByDescending(p => p.OrderDate).FirstOrDefault();
         }
 
-        public void Remove(Order Order)
+        public List<Order> GetByName(string orderNum)
         {
-            _dbSet.Remove(Order); // DELET FROM Order WHEERE Id = Order.Id
+            return _dbSet.Where(order => order.OrderNum.Contains(orderNum)).ToList();
+        }
+
+        public Order Add(Order order)
+        {
+            _dbSet.Add(order);
+
             _ordersApiDBContext.SaveChanges();
 
-
+            return order;
         }
+
+        public Order Update(Order order)
+        {
+            _dbSet.Update(order);
+
+            _ordersApiDBContext.SaveChanges();
+
+            return order;
+        }
+
+        public void Remove(Order order)
+        {
+            _dbSet.Remove(order);
+
+            _ordersApiDBContext.SaveChanges();
+        }
+
     }
 }

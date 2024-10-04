@@ -1,5 +1,6 @@
 ﻿using OrdersAPI.Data.Context;
 using OrdersAPI.Domain;
+using OrdersAPI.Repositories.Implementations;
 using OrdersAPI.Repositories.Interfaces;
 using OrdersAPI.Services.Interfaces;
 using System;
@@ -19,27 +20,51 @@ namespace OrdersAPI.Services.Implemntations
         {
             _ordersApiDBContext = ordersApiDBContext;
             _customerRepository = customerRepository;
-        }   
+        }
 
-        public List<Customer> GetAll() 
+        public List<Customer> GetAll()
         {
             return _customerRepository.GetAll();
         }
 
+        public Customer GetById(int id)
+        {
+            return _customerRepository.GetById(id);
+        }
+
         public Customer SaveCustomer(Customer customer)
         {
-            Customer customerResult = _customerRepository.GetById(customer.Id);
 
-            if (customerResult == null)
+            bool customerExists = _customerRepository.GetAny(customer.Id);
+
+            if (!customerExists)
             {
-                _customerRepository.Add(customer);
+                customer = _customerRepository.Add(customer);
             }
             else
             {
                 customer = _customerRepository.Update(customer);
             }
 
+            _ordersApiDBContext.SaveChanges();
+
             return customer;
+
+
+            /*Customer customerResult = _customerRepository.GetById(customer.Id);
+
+            if (customerResult == null)
+            {
+                customer = _customerRepository.Add(customer);
+            }
+            else
+            {
+                customer = _customerRepository.Update(customer);
+            }
+
+            _ordersApiDBContext.SaveChanges();
+
+            return customer;*/
         }
 
         public void RemoveCustomer(int id)
@@ -49,8 +74,8 @@ namespace OrdersAPI.Services.Implemntations
             if (customerResult != null)
             {
                 _customerRepository.Remove(customerResult);
-                _ordersApiDBContext.SaveChanges();
 
+                _ordersApiDBContext.SaveChanges();
             }
         }
     }

@@ -6,6 +6,7 @@ namespace OrdersAPI.Repositories.Interfaces
     {
         List<Customer> GetAll();
         Customer GetById(int id);
+        bool GetAny(int id);
         List<Customer> GetByName(string name);
         Customer Add(Customer customer);
         Customer Update(Customer customer);

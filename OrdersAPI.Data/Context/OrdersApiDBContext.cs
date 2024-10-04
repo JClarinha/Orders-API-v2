@@ -20,7 +20,15 @@ namespace OrdersAPI.Data.Context
         {
             //modelBuilder.Entity<Customer>().HasKey(p => p.Name); => Alterar chave primaria!
             modelBuilder.Entity<Customer>().Property(p => p.Email).HasMaxLength(150);
-            modelBuilder.Entity<Order>().Property(p => p.Total).HasPrecision(2);
+            //modelBuilder.Entity<Order>().Property(p => p.Total).HasPrecision(2);
+
+            //modelBuilder.Entity<Customer>().HasKey(p => p.Name);
+
+            //modelBuilder.Entity<Customer>().Property(p => p.Email).HasMaxLength(150);
+
+            //modelBuilder.Entity<Order>().Property(p => p.Total).HasPrecision(2);
+
+            //modelBuilder.Entity<Order>().HasOne(P => P.Customer).WithMany(p => p.Orders).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
